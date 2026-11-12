@@ -15,7 +15,9 @@ services:
     # Not exposed to the host network (§13.2)
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg2://xai:xai@db:5432/xai_insider

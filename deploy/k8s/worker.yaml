@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xai-worker
+  namespace: xai-insider
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: xai-worker}
+  template:
+    metadata:
+      labels: {app: xai-worker}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: worker
+          image: xai-insider:1.0.0
+          command: ["python", "-m", "app.worker"]
+          env:
+            - {name: DATABASE_URL, value: "postgresql+psycopg2://xai:$(POSTGRES_PASSWORD)@xai-db:5432/xai_insider"}
+            - {name: JWT_SECRET, valueFrom: {secretKeyRef: {name: xai-secrets, key: JWT_SECRET}}}

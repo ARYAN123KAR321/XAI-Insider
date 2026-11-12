@@ -1,0 +1,4 @@
+# "Should/Could" requirements (FR-18, FR-19). Installed automatically in Docker.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.1+cpu
+mlflow==2.16.0

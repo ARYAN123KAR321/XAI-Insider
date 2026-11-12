@@ -1,0 +1,10 @@
+[project]
+name = "xai-insider"
+version = "1.0.0"
+description = "Explainable AI for Insider Threat Detection and Forensic Case Building (lab demonstrator)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

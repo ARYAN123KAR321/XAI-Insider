@@ -1,0 +1,78 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: xai
+      POSTGRES_PASSWORD: xai
+      POSTGRES_DB: xai_insider
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xai -d xai_insider"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Not exposed to the host network (§13.2)
+
+  api:
+    build: .
+    command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg2://xai:xai@db:5432/xai_insider
+      JWT_SECRET: ${JWT_SECRET:-compose-dev-secret-change-me}
+      EMBEDDED_WORKER: "false"
+      API_BASE_URL: http://api:8000
+      ENABLE_MLFLOW: ${ENABLE_MLFLOW:-false}
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-file:///app/data/mlruns}
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: python -m app.worker
+    environment:
+      DATABASE_URL: postgresql+psycopg2://xai:xai@db:5432/xai_insider
+      JWT_SECRET: ${JWT_SECRET:-compose-dev-secret-change-me}
+      ENABLE_MLFLOW: ${ENABLE_MLFLOW:-false}
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-file:///app/data/mlruns}
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ui:
+    build: .
+    command: streamlit run app/ui/Home.py --server.port=8501 --server.address=0.0.0.0
+    environment:
+      API_BASE_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Optional experiment-tracking server (FR-18): docker compose --profile mlflow up
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.16.0
+    profiles: ["mlflow"]
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlflow/artifacts
+    volumes:
+      - ./data/mlflow:/mlflow
+    ports:
+      - "5000:5000"
+
+volumes:
+  pgdata:

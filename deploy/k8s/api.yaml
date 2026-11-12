@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xai-api
+  namespace: xai-insider
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: xai-api}
+  template:
+    metadata:
+      labels: {app: xai-api}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: api
+          image: xai-insider:1.0.0
+          command: ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+          env:
+            - {name: DATABASE_URL, value: "postgresql+psycopg2://xai:$(POSTGRES_PASSWORD)@xai-db:5432/xai_insider"}
+            - {name: EMBEDDED_WORKER, value: "false"}
+            - {name: JWT_SECRET, valueFrom: {secretKeyRef: {name: xai-secrets, key: JWT_SECRET}}}
+          ports: [{containerPort: 8000}]
+          readinessProbe:
+            httpGet: {path: /api/v1/health, port: 8000}
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet: {path: /api/v1/health, port: 8000}
+            initialDelaySeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xai-api
+  namespace: xai-insider
+spec:
+  selector: {app: xai-api}
+  ports: [{port: 8000, targetPort: 8000}]

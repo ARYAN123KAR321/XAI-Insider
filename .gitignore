@@ -1,0 +1,95 @@
+# ============================================================
+# XAI-Insider .gitignore
+# Runtime / generated / local-only artifacts stay on disk but
+# are excluded from the commit. Source, tests, docs, configs
+# and deployment files remain tracked.
+# ============================================================
+
+# ---------------- Python caches & builds ----------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-wheel-metadata/
+
+# ---------------- Virtual environments ----------------
+.venv/
+venv/
+env/
+ENV/
+
+# ---------------- Test / lint caches ----------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+
+# ---------------- Secrets & local config ----------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.streamlit/
+# Real K8s secrets (only the secret.example.yaml template is committed)
+deploy/k8s/secret.yaml
+
+# ---------------- IDE / OS noise ----------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------- XAI-Insider RUNTIME DATA (never commit) ----------------
+# SQLite DB + uploads/ + generated/ + cases/ + exports/
+data/
+# Trained model artifacts (Isolation Forest / autoencoder)
+models/
+*.joblib
+*.pt
+*.pth
+# MLflow local tracking store (if ever created outside data/)
+mlruns/
+# Stray database files anywhere
+*.db
+*.sqlite
+*.sqlite3
+
+# Stray exports / reports saved into the repo root during experiments
+/*.pdf
+/*.zip
+validation_report_*.csv
+
+# One-off local patch utility (not part of the deliverable;
+# delete this line if you prefer to commit it)
+fix_warnings.py
+
+# ---------------- Logs ----------------
+*.log
+logs/
+nohup.out
+
+# ---------------- Docker local volumes ----------------
+pgdata/
+
+# ------------------------------------------------------------
+# OPTIONAL — submission checklist wants a COMMITTED synthetic
+# dataset for clean-machine demos. If you want that, copy one
+# frozen dataset into data/samples/ and uncomment the last lines:
+#   mkdir data\samples
+#   xcopy /E /I data\generated\synthetic-42-7d data\samples\synthetic-42-7d
+# ------------------------------------------------------------
+# !data/samples/
+# !data/samples/**

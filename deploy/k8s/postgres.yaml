@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: xai-pgdata
+  namespace: xai-insider
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xai-db
+  namespace: xai-insider
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: xai-db}
+  template:
+    metadata:
+      labels: {app: xai-db}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - {name: POSTGRES_USER, value: xai}
+            - {name: POSTGRES_DB, value: xai_insider}
+            - {name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: xai-secrets, key: POSTGRES_PASSWORD}}}
+          ports: [{containerPort: 5432}]
+          volumeMounts:
+            - {name: pgdata, mountPath: /var/lib/postgresql/data}
+      volumes:
+        - {name: pgdata, persistentVolumeClaim: {claimName: xai-pgdata}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xai-db
+  namespace: xai-insider
+spec:
+  selector: {app: xai-db}
+  ports: [{port: 5432, targetPort: 5432}]   # ClusterIP only; not exposed externally

@@ -41,7 +41,9 @@ services:
         condition: service_healthy
 
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     command: python -m app.worker
     environment:
       DATABASE_URL: postgresql+psycopg2://xai:xai@db:5432/xai_insider
@@ -56,7 +58,9 @@ services:
         condition: service_healthy
 
   ui:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     command: streamlit run app/ui/Home.py --server.port=8501 --server.address=0.0.0.0
     environment:
       API_BASE_URL: http://api:8000

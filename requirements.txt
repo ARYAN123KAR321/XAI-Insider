@@ -1,28 +1,28 @@
 # Core API
-fastapi==0.115.0
-uvicorn==0.30.6
-pydantic==2.9.2
-pydantic-settings==2.5.2
-python-multipart==0.0.9
-PyJWT==2.9.0
-requests==2.32.3
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+python-multipart
+PyJWT
+requests
 
 # Dashboard
-streamlit==1.38.0
-plotly==5.24.0
+streamlit
+plotly
 
 # Data / ML
-pandas==2.2.2
-numpy==1.26.4
-scikit-learn==1.5.1
-joblib==1.4.2
+pandas
+numpy
+scikit-learn
+joblib
 
 # Persistence
-SQLAlchemy==2.0.34
-psycopg2-binary==2.9.9
+SQLAlchemy
+psycopg2-binary
 
 # Reporting / export
-reportlab==4.2.2
+reportlab
 
 # Tests
-pytest==8.3.3
+pytest

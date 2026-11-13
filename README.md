@@ -48,7 +48,10 @@ pip install --upgrade pip
 pip install -r requirements.txt
 pip install -r requirements-optional.txt   # torch (CPU) + MLflow → enables FR-18/FR-19
 ```
-
+If torch fails to install install it manually 
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
 ### 3. Configure the environment
 **Windows:** `copy .env.example .env`  ·  **Linux / macOS:** `cp .env.example .env`
 (The defaults work as-is: SQLite database, embedded worker, demo passwords.)
